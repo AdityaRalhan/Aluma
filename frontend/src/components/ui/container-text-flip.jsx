@@ -1,6 +1,5 @@
-"use client";;
+"use client";
 import React, { useState, useEffect, useId } from "react";
-
 import { motion } from "motion/react";
 import { cn } from "../../utils/cn";
 
@@ -18,29 +17,25 @@ export function ContainerTextFlip({
 
   const updateWidthForWord = () => {
     if (textRef.current) {
-      // Add some padding to the text width (30px on each side)
-      // @ts-ignore
-      const textWidth = textRef.current.scrollWidth + 30;
+      const textWidth = textRef.current.scrollWidth + 30; // padding
       setWidth(textWidth);
     }
   };
 
   useEffect(() => {
-    // Update width whenever the word changes
     updateWidthForWord();
   }, [currentWordIndex]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
-      // Width will be updated in the effect that depends on currentWordIndex
     }, interval);
 
     return () => clearInterval(intervalId);
   }, [words, interval]);
 
   return (
-    (<motion.p
+    <motion.p
       layout
       layoutId={`words-here-${id}`}
       animate={{ width }}
@@ -49,7 +44,8 @@ export function ContainerTextFlip({
         "text-4xl md:text-7xl font-bold text-black dark:text-white",
         className
       )}
-      key={words[currentWordIndex]}>
+      key={words[currentWordIndex]}
+    >
       <motion.div
         transition={{
           duration: animationDuration / 1000,
@@ -57,7 +53,8 @@ export function ContainerTextFlip({
         }}
         className={cn("inline-block", textClassName)}
         ref={textRef}
-        layoutId={`word-div-${words[currentWordIndex]}-${id}`}>
+        layoutId={`word-div-${words[currentWordIndex]}-${id}`}
+      >
         <motion.div className="inline-block">
           {words[currentWordIndex].split("").map((letter, index) => (
             <motion.span
@@ -72,12 +69,13 @@ export function ContainerTextFlip({
               }}
               transition={{
                 delay: index * 0.02,
-              }}>
+              }}
+            >
               {letter}
             </motion.span>
           ))}
         </motion.div>
       </motion.div>
-    </motion.p>)
+    </motion.p>
   );
 }
