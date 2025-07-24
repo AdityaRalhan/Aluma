@@ -3,7 +3,7 @@ import { ArrowRight, Brain, Heart, Target, BarChart3, Calendar, TrendingUp } fro
 import { useRouter } from "next/navigation";
 import dotenv from "dotenv";
 import { useState } from "react";
-import { set } from "mongoose";
+
 
 dotenv.config();
 
