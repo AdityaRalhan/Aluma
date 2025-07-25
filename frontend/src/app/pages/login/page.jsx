@@ -2,15 +2,26 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import zxcvbn from "zxcvbn";
 
 function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [strength, setStrength] = useState(0);
+  const [feedback, setFeedback] = useState({ warning: "", suggestions: [] });
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+      const { name, value } = e.target;
+      const updatedForm = { ...form, [name]: value };
+      setForm(updatedForm);
+  
+      if (name === "password") {
+        const result = zxcvbn(value);
+        setStrength(result.score);
+        setFeedback(result.feedback); 
+      }
+    };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -72,6 +83,42 @@ function Login() {
               onChange={handleChange}
               required
             />
+            {form.password && (
+          <div className="mt-2">
+            <div className="h-2 bg-gray-200 rounded">
+              <div
+                className={`h-full rounded transition-all duration-300 ${
+                  strength === 0 ? 'w-1/5 bg-red-500' :
+                  strength === 1 ? 'w-2/5 bg-orange-500' :
+                  strength === 2 ? 'w-3/5 bg-yellow-500' :
+                  strength === 3 ? 'w-4/5 bg-blue-500' :
+                  'w-full bg-green-500'
+                }`}
+              />
+            </div>
+            <p className={`text-sm mt-1 ${
+              strength < 2 ? 'text-red-600' :
+              strength < 4 ? 'text-yellow-600' :
+              'text-green-600'
+            }`}>
+              Strength: {['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'][strength]}
+            </p>
+          </div>
+        )}
+        {form.password && feedback && (
+        <div className="mt-1 text-sm text-gray-700">
+          {feedback.warning && (
+            <p className="text-red-600 font-medium">⚠ {feedback.warning}</p>
+          )}
+          {feedback.suggestions.length > 0 && (
+            <ul className="list-disc list-inside text-gray-600 mt-1">
+              {feedback.suggestions.map((suggestion, index) => (
+                <li key={index}>{suggestion}</li>
+              ))}
+            </ul>
+          )}
+          </div>
+        )}
           </div>
   
           <button
