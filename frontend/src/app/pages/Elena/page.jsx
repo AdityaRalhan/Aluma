@@ -3,7 +3,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import parse from 'html-react-parser'
 
+const markdown = require('markdown').markdown;
 const Elena = () => {
   const [input, setInput] = useState("");
   const [userId, setUserId] = useState(null);
@@ -301,7 +303,7 @@ const Elena = () => {
                     {/* Message Content */}
                     <div className="flex items-start justify-between space-x-3">
                       <p className="text-sm leading-relaxed font-medium">
-                        {message.content}
+                        {parse(markdown.toHTML(message.content))}
                       </p>
 
                       {/* Enhanced Speaker Icon */}

@@ -34,6 +34,22 @@ export const saveConversation = async (req, res) => {
   }
 };
 
+export const saveBotConversation = async (userId,sender,message) => {
+  try {
+    const newMessage = await Conversation.create({
+      userId,
+      sender,
+      message,
+    });
+
+    await newMessage.save()
+
+  } catch (err) {
+    console.error("Error saving conversation:", err);
+  }
+};
+
+
 // Get all conversation messages by user
 export const getConversationsByUser = async (req, res) => {
   const { userId } = req.params;

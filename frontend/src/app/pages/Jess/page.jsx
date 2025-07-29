@@ -3,10 +3,15 @@ import React, { useState, useRef, useEffect } from "react";
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import parse from 'html-react-parser'
+import markdownToTxt from "markdown-to-txt";
+
+const markdown = require('markdown').markdown;
 
 const Jess = () => {
   const router = useRouter();
   const [input, setInput] = useState("");
+  const [autoSpeech,setAutoSpeech] = useState(false)
   const [messages, setMessages] = useState([
     {
       type: "bot",
@@ -71,7 +76,7 @@ const Jess = () => {
 
     if (synth.speaking) synth.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    const utterance = new SpeechSynthesisUtterance(markdownToTxt(text));
     utterance.voice = getPreferredVoice();
     utterance.lang = "en-US";
     utterance.rate = 1;
@@ -86,24 +91,24 @@ const Jess = () => {
   };
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim()){console.log("Trim");return;} 
 
     const userMessage = {
       type: "user",
       content: input,
       timestamp: new Date(),
     };
-
-    setMessages((prev) => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage]; 
+    setMessages(updatedMessages);
     setInput("");
     setIsLoading(true);
 
     try {
       const token = localStorage.getItem("token") || "";
-
+      
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/JessAI`,
-        { message: input },
+        { message: updatedMessages },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -116,6 +121,8 @@ const Jess = () => {
         content: res.data.reply,
         timestamp: new Date(),
       };
+      if(autoSpeech)
+      speakText(res.data.reply)
 
       setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
@@ -136,6 +143,7 @@ const Jess = () => {
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+      console.log("Key pressed")
       sendMessage();
     }
   };
@@ -248,7 +256,7 @@ const Jess = () => {
                     {/* Message Content */}
                     <div className="flex items-start justify-between space-x-3">
                       <p className="text-sm leading-relaxed font-medium">
-                        {message.content}
+                        {parse(markdown.toHTML(message.content))}
                       </p>
                       
                       {/* Enhanced Speaker Icon */}
@@ -321,7 +329,7 @@ const Jess = () => {
                   ref={textareaRef}
                   className="relative w-full p-5 bg-white/95 backdrop-blur-sm rounded-2xl border border-white/20 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/30 resize-none shadow-xl transition-all duration-300 focus:scale-[1.01]"
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onInput={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   rows={1}
                   placeholder="Share what's on your mind... ✨"
@@ -335,6 +343,17 @@ const Jess = () => {
                   </svg>
                 </div>
               </div>
+
+              {/*AutoSpeech*/}
+              <button
+                className = {autoSpeech?"group relative p-4 bg-gradient-to-br from-[#f09433] via-[#e6683c] to-[#dc2743] text-white rounded-2xl font-medium hover:from-[#cc2366] hover:to-[#bc1888] focus:outline-none focus:ring-2 focus:ring-pink-400/50 transition-all duration-300 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[60px] hover:scale-105 active:scale-95":"group relative p-4 bg-gradient-to-br from-[#b9935b] to-[#8e5a2a] text-white rounded-2xl font-semibold hover:from-[#a1743b] hover:to-[#6c3f1b] focus:outline-none focus:ring-2 focus:ring-[#d4af37]/40 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[60px] hover:scale-105 active:scale-95"}
+                onClick={()=>{setAutoSpeech(!autoSpeech)}}
+              >{autoSpeech?<svg className="w-4 h-4 text-blue-600 group-hover:text-blue-700" fill="white" viewBox="0 0 20 20"> 
+                              <path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.617.82L4.29 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.29l4.093-3.82a1 1 0 011 .096z" />
+                              <path d="M16.95 7.05a1 1 0 00-1.414 0L14 8.586l-1.536-1.536a1 1 0 10-1.414 1.414L12.586 10l-1.536 1.536a1 1 0 001.414 1.414L14 11.414l1.536 1.536a1 1 0 001.414-1.414L15.414 10l1.536-1.536a1 1 0 000-1.414z" />
+                          </svg>:<svg className="w-4 h-4 text-blue-600 group-hover:text-blue-700" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.617.82L4.29 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.29l4.093-3.82a1 1 0 011 .096z" clipRule="evenodd" />
+                          </svg>}</button>
 
               {/* Enhanced Send Button */}
               <button

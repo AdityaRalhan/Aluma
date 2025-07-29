@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY_ASSESSMENT);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY_ELENA);
 
 /**
  * Calls Gemini API with the category scores and returns advice/analysis string.
@@ -43,7 +43,7 @@ Respond only in **valid JSON** format, like the example below:
 `;
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: process.env.MODEL });
 
     const result = await model.generateContent({
       contents: [
@@ -60,9 +60,10 @@ Respond only in **valid JSON** format, like the example below:
     // Clean the ```json and ``` if present
     const cleanText = rawText
       .replace(/^```json\s*/, "") // remove starting ```json
-      .replace(/```$/, "") // remove ending ```
+      .replace(/```[\s\n\r]*$/g, '') // remove ending ```
       .trim();
 
+    console.log(cleanText)
     const aiAnalysis = JSON.parse(cleanText);
     return aiAnalysis;
     // return text.trim();

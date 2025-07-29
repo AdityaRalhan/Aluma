@@ -43,6 +43,7 @@ function Signup() {
         alert(data.message || "Signup failed");
       }
     } catch (error) {
+      console.log(error)
       alert("An error occurred during signup. Please try again.");
     } finally {
       setLoading(false);

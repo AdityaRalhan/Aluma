@@ -1,9 +1,11 @@
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from "axios";
+import { saveBotConversation } from "../../controllers/conversationController.js";
 
 dotenv.config();
 
+console.log(process.env.GEMINI_API_KEY_ELENA)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY_ELENA);
 
 // Map to track whether Elena has already referred to past conversation for a user
@@ -64,17 +66,19 @@ Trusted Contacts: ${contacts}
       { headers: { Authorization: `Bearer ${token}` } }
     );
     pastConversations = convoRes.data?.data || [];
+    console.log(pastConversations)
   } catch (error) {
     console.error("Failed to fetch past conversations:", error);
   }
 
   const formattedConversations = pastConversations
     .map((msg) => {
-      return `${msg.sender === "bot" ? "Elena" : userInfo?.name || "User"}: ${msg.message}`;
+      return {role:msg.sender === "elena"?"model":"user", parts:[{text:msg.message}]}
     })
-    .join("\n");
 
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    console.log(formattedConversations)
+
+  const model = genAI.getGenerativeModel({ model: process.env.MODEL });
 
   // Determine whether to include conversation context
   const userId = userInfo?._id || "guest";
@@ -153,17 +157,13 @@ Trusted Contacts: ${contacts}
     const result = await model.generateContent({
       contents: [
         {
-          role: "user",
-          parts: [{ text: prompt }],
+          role:"user",
+          parts : [{text : prompt}]
         },
-        {
-          role: "user",
-          parts: [{ text: userPrompt }],
-        },
-      ],
+        ...formattedConversations],
     });
-
     const response = await result.response;
+    await saveBotConversation(userInfo?._id,"elena",response.text())
     return response.text();
   } catch (error) {
     console.error("Gemini error:", error);

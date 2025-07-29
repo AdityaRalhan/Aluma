@@ -12,7 +12,7 @@ const userSessionFlags = new Map();
 
 export async function getJessReply(userPrompt, token) {
   let userInfo = null;
-
+  console.log(userPrompt)
   try {
     const res = await axios.get(`${process.env.BACKEND_URL}/api/user`, {
       headers: {
@@ -56,7 +56,7 @@ Trusted Contacts: ${contacts}
 `;
   }
 
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const model = genAI.getGenerativeModel({ model: process.env.MODEL });
 
   const userId = userInfo?._id || "guest";
   const isFirstReply = !userSessionFlags.get(userId);
@@ -152,18 +152,22 @@ Always prioritize a blend of understanding, encouragement, and practical advice.
   try {
     const result = await model.generateContent({
       contents: [
-        {
-          role: "user",
-          parts: [{ text: prompt }],
-        },
-        {
-          role: "user",
-          parts: [{ text: userPrompt }],
-        },
-      ],
-    });
+        {role:"user", parts:[{text:prompt}]},
+        ...userPrompt.map((msg)=>{
+        return {
+          role:msg.type=="bot"?"model":"user",
+          parts : [{text:msg.content}]
+        }
+      })],
+    generationConfig: {
+      maxOutputTokens: 300, 
+      temperature: 0.7,      
+      topP: 0.9              
+    }
+    }
+  );
 
-    const response = await result.response;
+    const response = result.response;
     return response.text();
   } catch (error) {
     console.error("Gemini error:", error);

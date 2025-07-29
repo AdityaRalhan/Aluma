@@ -16,7 +16,7 @@ export const signup = async (req, res) => {
     Current_Medication = "",
     trustedContacts = [],
   } = req.body;
-
+  console.log("request")
   try {
     // Check if user already exists
     const existingUser = await User.findOne({ email });

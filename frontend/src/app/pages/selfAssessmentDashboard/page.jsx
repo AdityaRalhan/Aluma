@@ -12,7 +12,6 @@ import {
   Calendar,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Calender from "@/sections/calender";
 
 export default function AssessmentDashboard({ result }) {
     const [name, setName] = useState("");

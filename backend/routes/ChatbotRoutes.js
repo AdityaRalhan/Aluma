@@ -29,7 +29,7 @@ router.post('/ElenaAI', async (req, res) => {
 
 router.post('/JessAI', async (req, res) => {
   const { message } = req.body;
-
+  console.log(message)
   if (!message) {
     return res.status(400).json({ error: 'Message is required.' });
   }
