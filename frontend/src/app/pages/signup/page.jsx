@@ -8,13 +8,35 @@ function Signup() {
     name: "",
     email: "",
     password: "",
-    description: "",  // added description here
+    description: "",
   });
+
   const [loading, setLoading] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState("");
   const router = useRouter();
 
+  const checkPasswordStrength = (password) => {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+    if (strength === 0) return "";
+    if (strength === 1) return "Weak";
+    if (strength === 2) return "Fair";
+    if (strength === 3) return "Good";
+    if (strength === 4) return "Strong";
+  };
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+
+    if (name === "password") {
+      const strength = checkPasswordStrength(value);
+      setPasswordStrength(strength);
+    }
   };
 
   const handleSignup = async (e) => {
@@ -28,9 +50,9 @@ function Signup() {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(form)  // description will be sent here as well
+          body: JSON.stringify(form),
         }
       );
 
@@ -53,17 +75,19 @@ function Signup() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 px-4">
       <div className="w-full max-w-md rounded-3xl shadow-2xl bg-white/90 backdrop-blur border border-white/40 p-6">
-  
         {/* Recommendation Box */}
         <div className="mb-6 p-4 rounded-lg bg-blue-100 border border-blue-300 text-blue-800 text-sm shadow-sm">
-        For a more personalized experience, we highly recommend filling out the 'About You' section after signing in. This helps us and our chatbots understand you better and tailor the interactions just for you.
+          For a more personalized experience, we highly recommend filling out
+          the 'About You' section after signing in. This helps us and our
+          chatbots understand you better and tailor the interactions just for
+          you.
         </div>
-  
+
         <form onSubmit={handleSignup} className="p-2">
           <h2 className="text-3xl font-extrabold text-center text-gray-800 mb-6">
             Create an Account
           </h2>
-  
+
           <div className="space-y-4">
             <input
               type="text"
@@ -74,7 +98,7 @@ function Signup() {
               onChange={handleChange}
               required
             />
-  
+
             <input
               type="email"
               name="email"
@@ -84,7 +108,7 @@ function Signup() {
               onChange={handleChange}
               required
             />
-  
+
             <input
               type="password"
               name="password"
@@ -94,7 +118,24 @@ function Signup() {
               onChange={handleChange}
               required
             />
-  
+
+            {form.password && (
+              <p
+                className={`text-sm font-medium mt-1 ${
+                  passwordStrength === "Weak"
+                    ? "text-red-500"
+                    : passwordStrength === "Fair"
+                    ? "text-yellow-500"
+                    : passwordStrength === "Good"
+                    ? "text-blue-500"
+                    : "text-green-600"
+                }`}
+              >
+                Password Strength: {passwordStrength}
+              </p>
+            )}
+
+            {/* Optional: About You / Description */}
             {/* <textarea
               name="description"
               placeholder="Tell us about yourself (optional)"
@@ -104,7 +145,7 @@ function Signup() {
               rows={3}
             /> */}
           </div>
-  
+
           <button
             type="submit"
             className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50"
@@ -112,7 +153,7 @@ function Signup() {
           >
             {loading ? "Signing up..." : "Sign Up"}
           </button>
-  
+
           <p className="text-center text-sm text-gray-700 mt-5">
             Already a user?{" "}
             <span
@@ -126,8 +167,6 @@ function Signup() {
       </div>
     </div>
   );
-  
-  
 }
 
 export default Signup;
