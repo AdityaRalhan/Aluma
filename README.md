@@ -123,7 +123,3 @@ We welcome contributions, especially from **GSSoC participants** 💛
 
 This project is licensed under the **MIT License** – feel free to use and modify with proper attribution.
 
----
-
-If we add **badges (tech used, contributors, PRs welcome)** and **screenshots of the UI**, this README will stand out even more in GSSoC’s project list.
-I can prepare those assets for you next so your PR will look extra polished.
