@@ -1,4 +1,6 @@
 'use client'
+import Link from 'next/link';
+
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -132,6 +134,19 @@ export default function Home() {
           animation: spin-slow 20s linear infinite;
         }
       `}</style>
+     <div className="py-16 bg-pink-50 text-center rounded-3xl mt-20 mx-4 shadow-xl border border-pink-200">
+        <h2 className="text-4xl font-bold text-pink-700 mb-4">📚 Explore Mental Wellness Reads</h2>
+        <p className="text-gray-700 mb-6 max-w-2xl mx-auto text-lg">
+          Discover curated book suggestions on mindfulness, stress relief, motivation, emotional intelligence & self-help.
+        </p>
+
+        <Link href="/books">
+          <div className="inline-block bg-pink-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-pink-700 transition cursor-pointer">
+            Browse Books
+          </div>
+        </Link>
+      </div>
+
     </AuroraBackground>
   );
 }

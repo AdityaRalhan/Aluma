@@ -2,13 +2,14 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import PasswordStrengthMeter from "@/components/ui/PasswordStrengthMeter"; 
 
 function Signup() {
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
-    description: "",  // added description here
+    description: "",
   });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -21,7 +22,10 @@ function Signup() {
     e.preventDefault();
     setLoading(true);
     try {
+
       console.log("Backend URL:", "");
+
+
 
       const response = await fetch(
         `${""}/api/signup`,
@@ -30,7 +34,7 @@ function Signup() {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(form)  // description will be sent here as well
+          body: JSON.stringify(form)
         }
       );
 
@@ -56,7 +60,7 @@ function Signup() {
   
         {/* Recommendation Box */}
         <div className="mb-6 p-4 rounded-lg bg-blue-100 border border-blue-300 text-blue-800 text-sm shadow-sm">
-        For a more personalized experience, we highly recommend filling out the 'About You' section after signing in. This helps us and our chatbots understand you better and tailor the interactions just for you.
+          For a more personalized experience, we highly recommend filling out the 'About You' section after signing in. This helps us and our chatbots understand you better and tailor the interactions just for you.
         </div>
   
         <form onSubmit={handleSignup} className="p-2">
@@ -94,15 +98,9 @@ function Signup() {
               onChange={handleChange}
               required
             />
-  
-            {/* <textarea
-              name="description"
-              placeholder="Tell us about yourself (optional)"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 placeholder-gray-400 resize-none"
-              value={form.description}
-              onChange={handleChange}
-              rows={3}
-            /> */}
+
+            {/* Password Strength Meter */}
+            <PasswordStrengthMeter password={form.password} />
           </div>
   
           <button
@@ -126,8 +124,6 @@ function Signup() {
       </div>
     </div>
   );
-  
-  
 }
 
 export default Signup;
