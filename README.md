@@ -121,5 +121,5 @@ We welcome contributions, especially from **GSSoC participants** 💛
 
 ## 📜 **License**
 
-This project is licensed under the **MIT License** – feel free to use and modify with proper attribution.
+This project is licensed under the **MIT License** 
 
