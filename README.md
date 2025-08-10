@@ -111,7 +111,7 @@ We welcome contributions, especially from **GSSoC participants** 💛
 4. Commit changes:
 
    ```bash
-   git commit -m "Add: short description of feature"
+   git commit -m 
    ```
 5. Push to your fork and open a **Pull Request**.
 
