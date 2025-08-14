@@ -4,7 +4,7 @@ import { Music, Bot, Book, PencilLine, Brain, Sparkles } from "lucide-react";
 export default function AboutUs() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-300 via-blue-500 to-cyan-500">
-      <section className="max-w-6xl mx-auto px-6 py-16 text-slate-800 space-y-12">
+      <section className="max-w-6xl mx-auto px-6 py-10 text-slate-800 space-y-12">
         {/* Heading */}
         <div className="text-center space-y-6">
           <div className="inline-block p-4 rounded-full bg-gradient-to-r from-peach-100 to-green-100 border border-cyan-200 mb-4 shadow-lg">
