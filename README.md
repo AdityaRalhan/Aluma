@@ -1,6 +1,6 @@
 # 🔐 Aluma – Personalized Mental & Emotional Healthcare Platform
 
-![GSSoC Logo](/Aluma/frontend/public/gssoc%20logo.png)
+![GSSoC Logo](https://github.com/AdityaRalhan/Aluma/blob/main/frontend/public/gssoc%20logo.png)
 
 # OverView
 Aluma is a full-stack AI-powered wellness platform designed to provide personalized tools for mental and emotional care. It focuses on promoting emotional well-being through intelligent chatbots, personalized dashboards, mood tracking, and soothing music integrations.
