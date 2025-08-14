@@ -22,8 +22,13 @@ function Signup() {
     e.preventDefault();
     setLoading(true);
     try {
+
+      console.log("Backend URL:", "");
+
+
+
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/signup`,
+        `${""}/api/signup`,
         {
           method: "POST",
           headers: {

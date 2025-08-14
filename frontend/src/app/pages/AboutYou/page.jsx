@@ -4,8 +4,6 @@ import React, { useEffect, useState } from "react";
 import {
   User,
   Heart,
-  Music,
-  BookOpen,
   Phone,
   Edit3,
   Save,
@@ -17,16 +15,16 @@ import {
   Calendar,
   Activity,
   Pill,
+  BookOpenText,
+  Shield,
 } from "lucide-react";
-
-function cn(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
 
 export default function AboutYouPage() {
   const [user, setUser] = useState(null);
   const [editing, setEditing] = useState(false);
   const [valueTemp, setValueTemp] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [ageError, setAgeError] = useState("");
 
   const [form, setForm] = useState({
     email: "",
@@ -46,10 +44,9 @@ export default function AboutYouPage() {
     const token = localStorage.getItem("token") || "";
 
     const fetchUser = async () => {
-      console.log("Fetching user with token:", token);
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user`,
+          `${""}/api/user`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -57,16 +54,14 @@ export default function AboutYouPage() {
           }
         );
 
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
         const data = await res.json();
         setUser(data);
 
         setForm({
           email: data.email || "",
-          password: "", // Don't prefill
+          password: "",
           name: data.name || "",
           occupation: data.occupation || "",
           age: data.age || "",
@@ -82,45 +77,62 @@ export default function AboutYouPage() {
         });
       } catch (err) {
         console.error("Failed to fetch user:", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchUser();
   }, []);
 
+  const handleAgeChange = (e) => {
+    const value = e.target.value;
+    
+    
+    if (value === "" || /^[0-9\b]+$/.test(value)) {
+      const numericValue = value === "" ? "" : parseInt(value, 10);
+      
+     
+      if (value === "" || (numericValue >= 0 && numericValue <= 120)) {
+        setForm({ ...form, age: value });
+        setAgeError("");
+      } else {
+        setAgeError("Please enter a valid age between 0 and 120");
+      }
+    }
+  };
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    if (e.target.name === "age") {
+      handleAgeChange(e);
+    } else {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    }
   };
 
   const handleSave = async () => {
-    console.log("🔍 handleSave function called!"); // Add this to confirm function is called
+  
+    if (form.age && (parseInt(form.age) < 0 || parseInt(form.age) > 120)) {
+      setAgeError("Please enter a valid age between 0 and 120");
+      return;
+    }
 
     const token = localStorage.getItem("token") || "";
-    console.log("🔑 Token:", token ? "Token exists" : "No token found");
-
-    console.log("📋 Current form state:", form);
-    console.log("📝 ValueTemp:", valueTemp);
-
-    const updatedForm = {
-      ...form,
-      description: valueTemp.description
-        ? valueTemp.description
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean)
-            .join(", ")
-        : "",
-    };
-
-    console.log("📤 About to send this data:", updatedForm);
-    console.log(
-      "🌐 API URL:",
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/update`
-    );
 
     try {
+      const updatedForm = {
+        ...form,
+        description: valueTemp.description
+          ? valueTemp.description
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+              .join(", ")
+          : "",
+      };
+
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/update`,
+        `${""}/api/user/update`,
         {
           method: "PUT",
           headers: {
@@ -131,26 +143,16 @@ export default function AboutYouPage() {
         }
       );
 
-      console.log("📡 Response status:", response.status);
-      console.log("📡 Response ok:", response.ok);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("❌ Server error:", errorText);
-        throw new Error(
-          `HTTP error! status: ${response.status}, message: ${errorText}`
-        );
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
 
       const responseData = await response.json();
-      console.log("✅ Update successful:", responseData);
-
       setForm(updatedForm);
       setEditing(false);
-      console.log("✅ State updated successfully");
     } catch (err) {
-      console.error("❌ Update failed:", err);
-      // Add user-visible error handling
+      console.error("Update failed:", err);
       alert(`Update failed: ${err.message}`);
     }
   };
@@ -167,441 +169,335 @@ export default function AboutYouPage() {
     setForm({ ...form, trustedContacts: updated });
   };
 
-  const getFieldIcon = (key) => {
-    switch (key) {
-      case "email":
-        return <Mail className="w-5 h-5" />;
-      case "name":
-        return <User className="w-5 h-5" />;
-      case "occupation":
-        return <Briefcase className="w-5 h-5" />;
-      case "age":
-        return <Calendar className="w-5 h-5" />;
-      case "Physical_Activity":
-        return <Activity className="w-5 h-5" />;
-      case "Current_Medication":
-        return <Pill className="w-5 h-5" />;
-      default:
-        return <User className="w-5 h-5" />;
-    }
-  };
-
-  const getFieldDescription = (key) => {
-    switch (key) {
-      case "Physical_Activity":
-        return "Types of physical activities you enjoy";
-      case "Current_Medication":
-        return "Current medications (for emergency purposes)";
-      default:
-        return `Enter your ${key.replace(/_/g, " ").toLowerCase()}`;
-    }
-  };
-
-  if (!user) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen relative overflow-hidden">
-        {/* Animated Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1D5DCB] via-[#2563EB] to-[#4D86E0]">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-white/10 rounded-full animate-pulse"></div>
-          <div className="absolute top-40 right-20 w-24 h-24 bg-white/5 rounded-full animate-bounce"></div>
-          <div className="absolute bottom-40 left-20 w-20 h-20 bg-white/15 rounded-full animate-pulse"></div>
-        </div>
-
-        <div className="relative z-10 flex items-center justify-center min-h-screen">
-          <div className="text-center space-y-6">
-            <div className="relative">
-              <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
-              <div
-                className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-[#7AA7F2] rounded-full animate-spin mx-auto"
-                style={{ animationDelay: "0.5s" }}
-              />
-            </div>
-            <p className="text-white text-xl font-medium">
-              Loading your profile...
-            </p>
-            <div className="flex justify-center space-x-1">
-              <div className="w-2 h-2 bg-white rounded-full animate-bounce" />
-              <div
-                className="w-2 h-2 bg-white/70 rounded-full animate-bounce"
-                style={{ animationDelay: "0.2s" }}
-              />
-              <div
-                className="w-2 h-2 bg-white/40 rounded-full animate-bounce"
-                style={{ animationDelay: "0.4s" }}
-              />
-            </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="text-center space-y-4">
+          <div className="inline-block relative">
+            <div className="w-12 h-12 border-4 border-blue-100 rounded-full animate-spin" />
+            <div className="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-blue-500 rounded-full animate-spin" style={{ animationDelay: "0.3s" }} />
           </div>
+          <p className="text-gray-600 font-medium">Loading your profile...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1D5DCB] via-[#2563EB] to-[#4D86E0]">
-        {/* Floating Circles */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-white/10 rounded-full animate-pulse"></div>
-        <div
-          className="absolute top-40 right-20 w-24 h-24 bg-white/5 rounded-full animate-bounce"
-          style={{ animationDelay: "1s" }}
-        ></div>
-        <div
-          className="absolute bottom-40 left-20 w-20 h-20 bg-white/15 rounded-full animate-pulse"
-          style={{ animationDelay: "2s" }}
-        ></div>
-        <div
-          className="absolute bottom-20 right-40 w-28 h-28 bg-white/8 rounded-full animate-bounce"
-          style={{ animationDelay: "0.5s" }}
-        ></div>
-        <div
-          className="absolute top-60 left-1/2 w-16 h-16 bg-white/12 rounded-full animate-pulse"
-          style={{ animationDelay: "1.5s" }}
-        ></div>
-
-        {/* Gradient Orbs */}
-        <div
-          className="absolute top-1/4 right-1/4 w-64 h-64 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: "3s" }}
-        ></div>
-        <div
-          className="absolute bottom-1/4 left-1/4 w-48 h-48 bg-gradient-to-r from-blue-400/15 to-cyan-400/15 rounded-full blur-2xl animate-pulse"
-          style={{ animationDelay: "4s" }}
-        ></div>
-
-        {/* Animated Lines */}
-        <div className="absolute inset-0 opacity-20">
-          <svg
-            className="w-full h-full"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0,20 Q25,10 50,20 T100,15"
-              stroke="white"
-              strokeWidth="0.2"
-              fill="none"
-              opacity="0.3"
-            >
-              <animate
-                attributeName="d"
-                values="M0,20 Q25,10 50,20 T100,15;M0,25 Q25,5 50,25 T100,20;M0,20 Q25,10 50,20 T100,15"
-                dur="8s"
-                repeatCount="indefinite"
-              />
-            </path>
-            <path
-              d="M0,80 Q25,70 50,80 T100,75"
-              stroke="white"
-              strokeWidth="0.15"
-              fill="none"
-              opacity="0.2"
-            >
-              <animate
-                attributeName="d"
-                values="M0,80 Q25,70 50,80 T100,75;M0,85 Q25,65 50,85 T100,80;M0,80 Q25,70 50,80 T100,75"
-                dur="10s"
-                repeatCount="indefinite"
-              />
-            </path>
-          </svg>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 py-8 px-4">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-white/20 backdrop-blur-lg rounded-full mb-6 border border-white/30 shadow-2xl">
-              <User className="w-12 h-12 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <main className="max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+        {/* Profile Header */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center border border-blue-200">
+                <User className="w-12 h-12 text-blue-600" />
+              </div>
+              {editing && (
+                <button className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md border border-gray-200 hover:bg-gray-50 transition-colors">
+                  <Edit3 className="w-5 h-5 text-gray-600" />
+                </button>
+              )}
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Welcome back,{" "}
-              <span className="bg-gradient-to-r from-[#C5DFFF] to-[#7AA7F2] bg-clip-text text-transparent">
-                {form.name ? form.name.split(" ")[0] : "there"}
-              </span>
-            </h1>
-            <p className="text-white/80 text-lg mb-8">
-              Manage your personal information and preferences
-            </p>
-            <div className="flex justify-center">
-              <button
-                onClick={() => {
-                  if (editing) {
-                    handleSave(); // Call handleSave when in editing mode
-                  } else {
-                    setEditing(true); // Switch to edit mode when not editing
-                  }
-                }}
-                className={cn(
-                  "inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-xl",
-                  editing
-                    ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
-                    : "bg-gradient-to-r from-[#134BB3] via-[#1D5DCB] to-[#4D86E0] hover:from-[#4D86E0] hover:to-[#7AA7F2] text-white"
+            
+            <div className="text-center sm:text-left flex-1">
+              <h1 className="text-3xl font-bold text-gray-900 mb-1">
+                {form.name || "Your Profile"}
+              </h1>
+              <p className="text-gray-600 mb-4">
+                {form.occupation || "Update your personal information"}
+              </p>
+              
+              <div className="flex flex-wrap justify-center sm:justify-start gap-3">
+                <button
+                  onClick={() => editing ? handleSave() : setEditing(true)}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors ${
+                    editing
+                      ? "bg-green-600 hover:bg-green-700 text-white"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
+                >
+                  {editing ? (
+                    <Save className="w-5 h-5" />
+                  ) : (
+                    <Edit3 className="w-5 h-5" />
+                  )}
+                  {editing ? "Save Changes" : "Edit Profile"}
+                </button>
+
+                {editing && (
+                  <button
+                    onClick={() => setEditing(false)}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                    Cancel
+                  </button>
                 )}
-              >
-                {editing ? (
-                  <Save className="w-5 h-5" />
-                ) : (
-                  <Edit3 className="w-5 h-5" />
-                )}
-                {editing ? "Save Changes" : "Edit Profile"}
-              </button>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Profile Cards Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-            {/* Basic Information Card */}
-            <div className="lg:col-span-2 backdrop-blur-lg bg-white/15 border border-white/30 rounded-3xl p-8 shadow-2xl hover:bg-white/20 transition-all duration-300">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-r from-[#7AA7F2] to-[#C5DFFF] rounded-xl flex items-center justify-center">
-                  <User className="w-6 h-6 text-white" />
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Personal Information */}
+            <section className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <User className="w-6 h-6 text-blue-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-white">
-                  Basic Information
-                </h2>
+                <h2 className="text-xl font-semibold text-gray-900">Personal Information</h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {Object.entries(form).map(([key, value]) => {
-                  if (
-                    ["trustedContacts", "password", "createdAt"].includes(key)
-                  )
-                    return null;
-                  const isReadOnly = key === "createdAt";
+                  if (["trustedContacts", "password", "createdAt", "description"].includes(key)) return null;
+                  
+                  if (key === "age") {
+                    return (
+                      <div key={key} className="space-y-2">
+                        <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                          <Calendar className="w-5 h-5 text-blue-600" />
+                          Age
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            name="age"
+                            disabled={!editing}
+                            value={value}
+                            onChange={handleAgeChange}
+                            placeholder="Enter your age"
+                            className={`w-full px-4 py-2.5 rounded-lg border ${
+                              editing
+                                ? "border-blue-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                : "border-gray-200 bg-gray-50"
+                            } text-gray-700 transition-colors pr-10`}
+                            maxLength="3"
+                          />
+                          {value && (
+                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
+                              years
+                            </span>
+                          )}
+                        </div>
+                        {ageError && (
+                          <p className="text-sm text-red-600">{ageError}</p>
+                        )}
+                        {value && parseInt(value) > 100 && (
+                          <p className="text-sm text-amber-600">
+                            Please verify this is correct
+                          </p>
+                        )}
+                      </div>
+                    );
+                  }
 
                   return (
-                    <div key={key} className="space-y-3">
-                      <label className="flex items-center gap-3 text-[#C5DFFF] font-medium text-sm uppercase tracking-wide">
-                        {getFieldIcon(key)}
+                    <div key={key} className="space-y-2">
+                      <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                        {key === "Email" ? <Mail className="w-5 h-5 text-blue-600" /> :
+                         key === "Name" ? <User className="w-5 h-5 text-blue-600" /> :
+                         key === "Occupation" ? <Briefcase className="w-5 h-5 text-blue-600" /> :
+                         key === "Gender" ? <User className="w-5 h-5 text-blue-600" /> :
+                         key === "Physical_Activity" ? <Activity className="w-5 h-5 text-blue-600" /> :
+                         key === "Current_Medication" ? <Pill className="w-5 h-5 text-blue-600" /> :
+                         <User className="w-5 h-5 text-blue-600" />}
                         {key.replace(/_/g, " ")}
                       </label>
                       <input
-                        type={
-                          key === "password"
-                            ? "password"
-                            : key === "age"
-                            ? "number"
-                            : "text"
-                        }
+                        type={key === "email" ? "email" : "text"}
                         name={key}
-                        disabled={!editing || isReadOnly}
+                        disabled={!editing}
                         value={value}
                         onChange={handleChange}
-                        placeholder={getFieldDescription(key)}
-                        className={cn(
-                          "w-full rounded-2xl px-6 py-4 bg-white/10 backdrop-blur-sm text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#7AA7F2] focus:border-[#4D86E0] transition-all duration-300",
-                          (!editing || isReadOnly) &&
-                            "opacity-60 cursor-not-allowed",
-                          editing && "hover:bg-white/15 focus:bg-white/20"
-                        )}
+                        placeholder={
+                          key === "Physical_Activity" ? "Types of physical activities you enjoy" :
+                          key === "Current_Medication" ? "Current medications " :
+                          `Enter your ${key.replace(/_/g, " ").toLowerCase()}`
+                        }
+                        className={`w-full px-4 py-2.5 rounded-lg border ${
+                          editing
+                            ? "border-blue-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            : "border-gray-200 bg-gray-50"
+                        } text-gray-700 transition-colors`}
                       />
                     </div>
                   );
                 })}
               </div>
-            </div>
+            </section>
 
-            {/* Quick Stats Card */}
-            <div className="space-y-6">
-              <div className="backdrop-blur-lg bg-white/15 border border-white/30 rounded-3xl p-6 shadow-2xl">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-red-400" />
-                  Profile Stats
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/70">Trusted Contacts</span>
-                    <span className="text-white font-bold text-xl">
-                      {form.trustedContacts.length}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {form.createdAt && (
-                <div className="backdrop-blur-lg bg-white/15 border border-white/30 rounded-3xl p-6 shadow-2xl">
-                  <h3 className="text-lg font-semibold text-white mb-2">
-                    Member Since
-                  </h3>
-                  <p className="text-[#C5DFFF]">
-                    {new Date(form.createdAt).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Journal Entries Section */}
-          <div className="mb-12">
-            <div className="backdrop-blur-lg bg-white/15 border border-white/30 rounded-3xl p-8 shadow-2xl hover:bg-white/20 transition-all duration-300">
+            {/* About You */}
+            <section className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-white" />
+                <div className="p-2 bg-indigo-100 rounded-lg">
+                  <BookOpenText className="w-6 h-6 text-indigo-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-white">
-                  Describe Yourself
-                </h2>
+                <h2 className="text-xl font-semibold text-gray-900">About You</h2>
               </div>
+
               <textarea
                 disabled={!editing}
                 value={valueTemp.description ?? ""}
-                onChange={(e) =>
-                  setValueTemp({ ...valueTemp, description: e.target.value })
-                }
-                placeholder="Tell us about yourself, the type of person you are, your interests, and anything else you'd like to share (comma separated)"
-                className={cn(
-                  "w-full rounded-2xl px-6 py-4 h-32 bg-white/10 backdrop-blur-sm text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#7AA7F2] focus:border-[#4D86E0] transition-all duration-300 resize-none",
-                  !editing && "opacity-60 cursor-not-allowed",
-                  editing && "hover:bg-white/15 focus:bg-white/20"
-                )}
+                onChange={(e) => setValueTemp({ ...valueTemp, description: e.target.value })}
+                placeholder="Describe yourself, your interests, personality traits, etc. (comma separated)"
+                className={`w-full px-4 py-3 rounded-lg border ${
+                  editing
+                    ? "border-blue-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    : "border-gray-200 bg-gray-50"
+                } text-gray-700 min-h-[120px] transition-colors`}
               />
-            </div>
+            </section>
           </div>
 
-          {/* Personal Interests Cards */}
-          {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          
-
-          
-        </div> */}
-
-          {/* Trusted Contacts Section */}
-          <div className="backdrop-blur-lg bg-white/15 border border-white/30 rounded-3xl p-8 shadow-2xl">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
-                  <Phone className="w-6 h-6 text-white" />
+          {/* Right Column */}
+          <div className="space-y-6">
+            {/* Profile Summary */}
+            <section className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Activity className="w-6 h-6 text-green-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-white">
-                  Trusted Contacts
-                </h2>
+                <h2 className="text-xl font-semibold text-gray-900">Profile Summary</h2>
               </div>
 
-              {editing && (
-                <button
-                  onClick={() =>
-                    setForm((prev) => ({
-                      ...prev,
-                      trustedContacts: [
-                        ...prev.trustedContacts,
-                        { name: "", phone: "", relationship: "" },
-                      ],
-                    }))
-                  }
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#4D86E0] to-[#7AA7F2] rounded-xl text-white font-medium hover:from-[#7AA7F2] hover:to-[#C5DFFF] transition-all duration-300 transform hover:scale-105 shadow-lg"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Contact
-                </button>
-              )}
-            </div>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="text-gray-600">Member Since</span>
+                  <span className="font-medium text-gray-900">
+                    {form.createdAt ? new Date(form.createdAt).toLocaleDateString() : "N/A"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="text-gray-600">Trusted Contacts</span>
+                  <span className="font-medium text-gray-900">
+                    {form.trustedContacts.length}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-3">
+                  <span className="text-gray-600">Profile Completeness</span>
+                  <span className="font-medium text-gray-900">
+                    {Math.round(
+                      (Object.values(form).filter(v => v !== "" && v?.length !== 0).length / 
+                      Object.keys(form).length) * 100
+                    )}%
+                  </span>
+                </div>
+              </div>
+            </section>
 
-            {form.trustedContacts.length === 0 ? (
-              <div className="text-center py-12">
-                <Phone className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                <p className="text-white/60 text-lg mb-6">
-                  No trusted contacts added yet
-                </p>
+            {/* Trusted Contacts */}
+            <section className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Shield className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900">Trusted Contacts</h2>
+                </div>
+
                 {editing && (
                   <button
-                    onClick={() =>
-                      setForm((prev) => ({
-                        ...prev,
-                        trustedContacts: [
-                          ...prev.trustedContacts,
-                          { name: "", phone: "", relationship: "" },
-                        ],
-                      }))
-                    }
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#4D86E0] to-[#7AA7F2] rounded-xl text-white font-medium hover:from-[#7AA7F2] hover:to-[#C5DFFF] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                    onClick={() => setForm(prev => ({
+                      ...prev,
+                      trustedContacts: [...prev.trustedContacts, { name: "", phone: "", relationship: "" }],
+                    }))}
+                    className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors"
                   >
                     <Plus className="w-5 h-5" />
-                    Add Your First Contact
                   </button>
                 )}
               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {form.trustedContacts.map((contact, index) => (
-                  <div
-                    key={index}
-                    className="relative bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 group"
-                  >
-                    {editing && (
-                      <button
-                        onClick={() => removeContact(index)}
-                        className="absolute top-4 right-4 w-8 h-8 bg-red-500/20 hover:bg-red-500/40 rounded-full flex items-center justify-center text-red-300 hover:text-red-200 transition-colors duration-300 opacity-0 group-hover:opacity-100"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
 
-                    <div className="space-y-4">
-                      <input
-                        type="text"
-                        disabled={!editing}
-                        placeholder="Full Name"
-                        value={contact.name}
-                        onChange={(e) =>
-                          updateContact(index, "name", e.target.value)
-                        }
-                        className="w-full px-4 py-3 rounded-xl bg-white/5 backdrop-blur-sm text-white placeholder-white/40 border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#7AA7F2] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
-                      />
-                      <input
-                        type="text"
-                        disabled={!editing}
-                        placeholder="Phone Number"
-                        value={contact.phone}
-                        onChange={(e) =>
-                          updateContact(index, "phone", e.target.value)
-                        }
-                        className="w-full px-4 py-3 rounded-xl bg-white/5 backdrop-blur-sm text-white placeholder-white/40 border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#7AA7F2] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
-                      />
-                      <input
-                        type="text"
-                        disabled={!editing}
-                        placeholder="Relationship"
-                        value={contact.relationship}
-                        onChange={(e) =>
-                          updateContact(index, "relationship", e.target.value)
-                        }
-                        className="w-full px-4 py-3 rounded-xl bg-white/5 backdrop-blur-sm text-white placeholder-white/40 border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#7AA7F2] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
-                      />
+              {form.trustedContacts.length === 0 ? (
+                <div className="text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                  <Phone className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-500 mb-4">No trusted contacts added</p>
+                  {editing && (
+                    <button
+                      onClick={() => setForm(prev => ({
+                        ...prev,
+                        trustedContacts: [...prev.trustedContacts, { name: "", phone: "", relationship: "" }],
+                      }))}
+                      className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                    >
+                      Add your first contact
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {form.trustedContacts.map((contact, index) => (
+                    <div 
+                      key={index} 
+                      className="relative bg-gray-50 rounded-lg p-4 border border-gray-200"
+                    >
+                      {editing && (
+                        <button
+                          onClick={() => removeContact(index)}
+                          className="absolute top-3 right-3 p-1 text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                          <input
+                            type="text"
+                            disabled={!editing}
+                            value={contact.name}
+                            onChange={(e) => updateContact(index, "name", e.target.value)}
+                            className={`w-full px-3 py-2 rounded-md border ${
+                              editing
+                                ? "border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
+                                : "border-gray-200 bg-white"
+                            } text-gray-700`}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                          <input
+                            type="tel"
+                            disabled={!editing}
+                            value={contact.phone}
+                            onChange={(e) => updateContact(index, "phone", e.target.value)}
+                            className={`w-full px-3 py-2 rounded-md border ${
+                              editing
+                                ? "border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
+                                : "border-gray-200 bg-white"
+                            } text-gray-700`}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Relationship</label>
+                          <input
+                            type="text"
+                            disabled={!editing}
+                            value={contact.relationship}
+                            onChange={(e) => updateContact(index, "relationship", e.target.value)}
+                            className={`w-full px-3 py-2 rounded-md border ${
+                              editing
+                                ? "border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
+                                : "border-gray-200 bg-white"
+                            } text-gray-700`}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </section>
           </div>
-
-          {/* Action Buttons */}
-          {editing && (
-            <div className="flex justify-center gap-6 pt-12">
-              <button
-                onClick={handleSave}
-                className="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-2xl text-white font-semibold transition-all duration-300 transform hover:scale-105 shadow-xl"
-              >
-                <Save className="w-5 h-5" />
-                Save Changes
-              </button>
-              <button
-                onClick={() => setEditing(false)}
-                className="inline-flex items-center gap-3 px-10 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl text-white font-semibold transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
-              >
-                <X className="w-5 h-5" />
-                Cancel
-              </button>
-            </div>
-          )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }
