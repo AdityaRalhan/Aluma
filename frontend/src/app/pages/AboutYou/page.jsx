@@ -503,7 +503,12 @@ export default function AboutYouPage() {
               )}
             </div>
 
-            {form.trustedContacts.length === 0 ? (
+            {(form.trustedContacts || []).filter(
+              (contact) =>
+                (contact.name || "").trim() !== "" ||
+                (contact.phone || "").trim() !== "" ||
+                (contact.relationship || "").trim() !== ""
+            ).length === 0 ? (
               <div className="text-center py-12">
                 <Phone className="w-16 h-16 text-white/30 mx-auto mb-4" />
                 <p className="text-white/60 text-lg mb-6">
@@ -529,11 +534,18 @@ export default function AboutYouPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {form.trustedContacts.map((contact, index) => (
-                  <div
-                    key={index}
-                    className="relative bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 group"
-                  >
+                {(form.trustedContacts || [])
+                  .filter(
+                    (contact) =>
+                      (contact.name || "").trim() !== "" ||
+                      (contact.phone || "").trim() !== "" ||
+                      (contact.relationship || "").trim() !== ""
+                  )
+                  .map((contact, index) => (
+                    <div
+                      key={index}
+                      className="relative bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 group"
+                    >
                     {editing && (
                       <button
                         onClick={() => removeContact(index)}
