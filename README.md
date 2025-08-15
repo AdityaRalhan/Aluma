@@ -1,71 +1,75 @@
+# Aluma – Personalized Mental & Emotional Healthcare Platform
 
-
-# **Aluma – Personalized Mental & Emotional Healthcare Platform**
-
-Aluma is a **full-stack AI-powered wellness platform** designed to provide **personalized tools for mental and emotional care**.
-It promotes emotional well-being through **intelligent chatbots, mood tracking, soothing music integrations, and personalized dashboards**.
+Aluma is a full-stack, AI-powered wellness platform that helps users care for their mental and emotional health. It promotes well-being through intelligent chatbots, mood tracking, soothing music integrations, and personalized dashboards.
 
 ---
 
-## 🌟 **Purpose**
+## 🌟 Purpose
 
-Aluma aims to bridge the gap in **accessible emotional healthcare** by offering users a **safe, interactive, and personalized space** for mental wellness.
-It provides **tailored emotional support and motivational tools** through advanced AI integrations, helping users build **healthier emotional habits**.
-
----
-
-## 🚀 **Key Features**
-
-* **📊 Personalized Dashboards** – Dynamic dashboards that adjust content based on mood patterns and activity.
-* **🤖 AI Chatbots**:
-
-  * **Elena** – Empathetic emotional support chatbot.
-  * **Jess** – Motivational chatbot offering positive reinforcement.
-* **📝 Mood Journal** – Secure, encrypted journaling to track emotions over time.
-* **🎵 Curated Playlists** – Soothing music recommendations via Spotify API.
-* **🧠 Emotional Assessment Test** – AI-based self-assessment tool curated from 60+ feedback sessions.
-* **💡 User-Centric Design** – Simple, intuitive, and responsive interface.
+Aluma aims to make emotional healthcare accessible by offering a safe, interactive, and personalized space for mental wellness. With AI-driven support and motivational tools, it helps users build healthier emotional habits.
 
 ---
 
-## ⚙️ **Tech Stack**
+## 🚀 Key Features
 
-| Technology       | Purpose                                      |
-| ---------------- | -------------------------------------------- |
-| **Next.js**      | Frontend Framework (React-based)             |
-| **React.js**     | UI Components & State Management             |
-| **Tailwind CSS** | Styling & Responsive Design                  |
-| **Express.js**   | Backend API Development                      |
-| **MongoDB**      | NoSQL Database for User Data                 |
-| **Mongoose**     | MongoDB ODM for Data Modeling                |
-| **Gemini API**   | AI-Powered Chatbot Integrations              |
-| **Spotify API**  | Music Playlist Integration                   |
-| **JWT & bcrypt** | Secure User Authentication & Data Protection |
+- **Personalized Dashboards** – Dynamic dashboards that adjust content based on user mood patterns and activity.
+- **AI Chatbots**
+  - **Elena** – Empathetic emotional support.
+  - **Jess** – Motivational chatbot offering positive reinforcement.
+- **Mood Journal** – Secure, encrypted journaling to track emotions over time.
+- **Curated Playlists** – Soothing music recommendations via the Spotify API to aid relaxation.
+- **Emotional Assessment Test** – AI-based self-assessment for emotional well-being, informed by insights from 60+ user feedback sessions.
+- **User-Centric Design** – Simple, intuitive, responsive interface.
 
 ---
 
-## 🖥️ **Live Demo**
+## ⚙️ Tech Stack
 
-🌐 **[Aluma Live App](https://aluma-amber.vercel.app)**
+| Technology       | Purpose                                        |
+|------------------|------------------------------------------------|
+| Next.js          | Frontend framework (React-based)               |
+| React.js         | UI components & state management               |
+| Tailwind CSS     | Styling & responsive design                    |
+| Express.js       | Backend API development                        |
+| MongoDB          | NoSQL database for user data                   |
+| Mongoose         | MongoDB ODM for data modeling                  |
+| Gemini API       | AI-powered chatbot integrations                |
+| Spotify API      | Music playlist integration                      |
+| JWT & bcrypt     | Secure authentication & data protection        |
 
 ---
 
-## 📂 **Repository Links**
+## 🖥️ Live Demo
 
-* **GitHub Repository:** [Aluma GitHub](https://github.com/AdityaRalhan/Aluma)
+- **Aluma App:** https://aluma-amber.vercel.app
 
 ---
 
-## 🛠 **Getting Started (Local Setup)**
+## 📂 Repository
 
-### 1️⃣ Clone the repository
+- **GitHub:** https://github.com/AdityaRalhan/Aluma
 
+---
+
+## 🧰 Prerequisites
+
+- Node.js **v18+** (recommend LTS)
+- npm or yarn
+- A MongoDB instance (local or Atlas)
+- Developer accounts/keys for Spotify and Gemini (see env vars below)
+
+---
+
+## 🛠 Getting Started (Local Setup)
+
+### 1) Fork & Clone
 ```bash
-git clone https://github.com/AdityaRalhan/Aluma.git
+# fork the repo on GitHub first, then:
+git clone https://github.com/YOUR-USERNAME/Aluma.git
 cd Aluma
-```
+````
 
-### 2️⃣ Install dependencies
+### 2) Install Dependencies
 
 ```bash
 npm install
@@ -73,11 +77,11 @@ npm install
 yarn install
 ```
 
-### 3️⃣ Set up environment variables
+### 3) Environment Variables
 
-Create a `.env.local` file in the root directory and add the required keys:
+Create a file named `.env.local` in the project root and add:
 
-```
+```env
 MONGO_URI=your_mongo_connection_string
 JWT_SECRET=your_secret_key
 SPOTIFY_CLIENT_ID=your_spotify_client_id
@@ -85,41 +89,55 @@ SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
 GEMINI_API_KEY=your_gemini_api_key
 ```
 
-### 4️⃣ Run the development server
+### 4) Run the Development Server
 
 ```bash
 npm run dev
+# visit http://localhost:3000
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
+
+## 🤝 Contributing (GSSoC-friendly)
+
+1. **Find an issue**: check open issues here → [https://github.com/AdityaRalhan/Aluma/issues](https://github.com/AdityaRalhan/Aluma/issues)
+2. **Get assigned**: comment “I’d like to work on this” and wait for assignment.
+3. **Create a feature branch**:
+
+   ```bash
+   git checkout -b feat/short-description
+   ```
+4. **Commit clearly**:
+
+   ```bash
+   git commit -m "feat: short description of change"
+   ```
+5. **Push & open a PR**:
+
+   ```bash
+   git push origin feat/short-description
+   ```
+6. In your PR description, mention the issue number and add a brief summary/screenshots if relevant.
+
+**Tip:** Start with issues labeled **good first issue** / **beginner-friendly**.
 
 ---
 
-## 🤝 **Contributing**
+## 👩‍🏫 Mentors (Contact)
 
-We welcome contributions, especially from **GSSoC participants** 💛
+| Name                  | LinkedIn                                                                 | GitHub                                    |
+| --------------------- | ------------------------------------------------------------------------ | ----------------------------------------- |
+| Divyanshi Kulshrestha | [LinkedIn](https://www.linkedin.com/in/divyanshi-kulshrestha-5ba319295/) | [GitHub](https://github.com/divyanshii10) | 
+| Dipayan Ghosh         | [LinkedIn](https://www.linkedin.com/in/dipayan-ghosh-coder)              | [GitHub](https://github.com/Dip-1432)     |
+| Arvind Singh          | [LinkedIn](https://www.linkedin.com/in/arvind-singh-92b88928a)           | [GitHub](https://github.com/04arvind)     |
+| Sumit Sagar           | [LinkedIn](https://www.linkedin.com/in/sumit-sagar-8a8b39286)            | [GitHub](https://github.com/mostpalon3)   |
+| Poorvika K B          | [LinkedIn](https://www.linkedin.com/in/poorvikakb)                       | —                                         |
 
-**Steps to Contribute:**
-
-1. **Fork** the repository.
-2. Create a new branch:
-
-   ```bash
-   git checkout -b feature-name
-   ```
-3. Make your changes.
-4. Commit changes:
-
-   ```bash
-   git commit -m 
-   ```
-5. Push to your fork and open a **Pull Request**.
-
-📌 **Tip:** Check [Issues](https://github.com/AdityaRalhan/Aluma/issues) before starting to avoid duplicate work.
 
 ---
 
-## 📜 **License**
+## 📄 License
 
-This project is licensed under the **MIT License** 
+This project is licensed under the **MIT License**. See the `LICENSE` file for details.
+
 
