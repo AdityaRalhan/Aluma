@@ -7,11 +7,13 @@ import { ContainerTextFlip } from "@/components/ui/container-text-flip";
 import Music from "../Music/page";
 import Cards from "../Cards/page";
 import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
+import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 import SelfAssessmentCard from "../SelfAssessmentCard/page";
 import Navbar from "@/sections/navbar";
 import Footer from "@/sections/footer";
 
 export default function Home() {
+   useSmoothScroll();
   const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
   const [name, setName] = useState("User");
@@ -149,10 +151,10 @@ export default function Home() {
                 Welcome {name.charAt(0).toUpperCase() + name.slice(1)}
               </h1>
               <div className="h-1 w-24 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"></div>
-              <p className="text-2xl text-white/90 font-light leading-relaxed">
+              <div className="text-2xl text-white/90 font-light leading-relaxed">
                 Nurture your mind with <br />
                 <ContainerTextFlip />
-              </p>
+              </div>
               <button
                 id="about-you-button"
                 onClick={() => router.push("/pages/AboutYou")}
@@ -247,8 +249,8 @@ export default function Home() {
         <section id="SelfAssessment" className="relative z-10 py-8">
           <div className="max-w-7xl mx-auto px-6">
             {/* Section Header */}
-            <section id="SelfAssessment" className="relative z-10 py-16">
-              <div className="max-w-7xl mx-auto px-6">
+            
+      
                 {/* Clean, Stylish Header */}
                 <div className="text-center">
                   <h2 className="text-4xl font-semibold tracking-tight text-slate-800">
@@ -262,8 +264,8 @@ export default function Home() {
                     personal growth.
                   </p>
                 </div>
-              </div>
-            </section>
+        
+            
             {/* Card Component */}
             <SelfAssessmentCard />
           </div>
@@ -273,7 +275,7 @@ export default function Home() {
         <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-8"></div>
 
         {/* Music Section */}
-        <section className="relative z-10 py-20 overflow-hidden" id="music">
+        <section className="relative z-10 py-20" id="music">
           {/* Ambient Blurs */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-20 left-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -414,16 +416,7 @@ export default function Home() {
             animation: bounce-in 0.6s ease-out forwards;
           }
 
-          /* Smooth scrolling */
-          html {
-            scroll-behavior: smooth;
-          }
-
-          /* Hide scrollbar but keep functionality */
-          ::-webkit-scrollbar {
-            width: 0px;
-            background: transparent;
-          }
+          
         `}</style>
       </main>
       <Footer />

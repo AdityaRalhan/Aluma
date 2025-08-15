@@ -46,3 +46,13 @@ html, body {
 .animate-glow {
   animation: glow 3s ease infinite;
 }
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar but keep functionality */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import Link from "next/link";
+
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -25,7 +27,6 @@ export default function Navbar() {
 
   const navItems = [
     { id: "top", label: "Top" },
-    { id: "FocusCards", label: "Elena & Jess" },
     { id: "FocusCards", label: "Journal" },
     { id: "SelfAssessment", label: "AI Assessment" },
     { id: "music", label: "Music" },
@@ -66,6 +67,13 @@ export default function Navbar() {
                 </button>
               ))}
             </div>
+            <Link
+  href="/books"
+  className="px-4 py-2 text-sm font-medium text-white/80 hover:text-[#EC4899] transition-all duration-200"
+>
+  📚 Books
+</Link>
+
 
             {/* Mobile Menu Toggle */}
             <div className="md:hidden">
@@ -104,6 +112,14 @@ export default function Navbar() {
               </button>
             ))}
           </div>
+          <Link
+  href="/books"
+  onClick={() => setIsMobileMenuOpen(false)}
+  className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white/90 hover:text-white hover:bg-white/10 transition duration-200"
+>
+  📚 Books
+</Link>
+
         </div>
       </div>
     </>
