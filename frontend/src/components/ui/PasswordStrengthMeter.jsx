@@ -1,4 +1,4 @@
-// In a new file, e.g., frontend/src/components/ui/PasswordStrengthMeter.js
+
 
 import React, { useMemo } from 'react';
 
