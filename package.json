@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "firebase": "^12.1.0",
+    "next-auth": "^4.24.11",
+    "react-custom-alert": "^1.0.4",
+    "react-icon": "^1.0.0",
+    "react-icons": "^5.5.0"
+  }
+}
